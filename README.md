@@ -1,2 +1,0 @@
-# TRP
-Room renovation ideas
