@@ -1,3 +1,42 @@
+const currencyConfig = {
+  USD:{rate:0.24429,symbol:'$',code:'USD'},
+  MYR:{rate:1,symbol:'RM',code:'MYR'},
+  SGD:{rate:0.31271,symbol:'S$',code:'SGD'},
+  GBP:{rate:0.181015,symbol:'£',code:'GBP'},
+  EUR:{rate:0.211622,symbol:'€',code:'EUR'},
+  AUD:{rate:0.346529,symbol:'A$',code:'AUD'}
+};
+let activeCurrency='USD';
+function roundConverted(value){
+  if(activeCurrency==='MYR') return Math.round(value/100)*100;
+  return Math.round(value/50)*50;
+}
+function formatMoney(value){
+  const c=currencyConfig[activeCurrency];
+  return `${c.symbol}${Math.round(value).toLocaleString('en-US')}`;
+}
+function convertMYR(value){return roundConverted(value*currencyConfig[activeCurrency].rate)}
+function convertPriceRange(price){
+  const nums=[...price.matchAll(/[\d,]+/g)].map(m=>Number(m[0].replaceAll(',','')));
+  if(!nums.length) return price;
+  const plus=price.trim().endsWith('+');
+  if(nums.length===1) return `${formatMoney(convertMYR(nums[0]))}${plus?'+':''}`;
+  return `${formatMoney(convertMYR(nums[0]))}–${formatMoney(convertMYR(nums[1]))}${plus?'+':''}`;
+}
+function rebuildBudgetOptions(){
+  const budget=document.getElementById('formBudget'); if(!budget)return;
+  const v=budget.value;
+  const a=[5000,10000,20000,40000].map(convertMYR);
+  budget.innerHTML=`<option value="">Choose a range</option>
+    <option>Below ${formatMoney(a[0])}</option>
+    <option>${formatMoney(a[0])}–${formatMoney(a[1])}</option>
+    <option>${formatMoney(a[1])}–${formatMoney(a[2])}</option>
+    <option>${formatMoney(a[2])}–${formatMoney(a[3])}</option>
+    <option>${formatMoney(a[3])}+</option>
+    <option>I need TRP to advise me</option>`;
+  if([...budget.options].some(o=>o.value===v)) budget.value=v;
+}
+
 const roomTypes = [
   {name:'Gaming Room',emoji:'🎮',cat:'entertainment',price:'RM8,000–RM30,000+',img:'neon_cyberpunk_gaming_bedroom.webp',tone:'vivid',desc:'A purpose-built setup for PC, console or streaming with immersive lighting, clean cabling and equipment-first planning.',features:['RGB / smart lighting','Gaming desk & monitor layout','Acoustic panels','Display shelving','Cable management','Audio-reactive lighting']},
   {name:'Romance Room / Couples Retreat',emoji:'💕',cat:'lifestyle',price:'RM5,000–RM18,000+',img:'moody_luxury_bedroom_with_orange_accents.webp',tone:'warm',desc:'A warm, intimate retreat focused on comfort, ambience and premium soft furnishings rather than loud decoration.',features:['Ambient layered lighting','Premium bedding','Curtains & mirrors','Aroma diffuser zone','Soft furnishings','Elegant intimate décor']},
@@ -14,43 +53,47 @@ const roomTypes = [
   {name:'Cute / Pastel Room',emoji:'💗',cat:'lifestyle',price:'RM6,000–RM20,000+',img:'dreamy_pastel_kawaii_bedroom.webp',tone:'soft',desc:'A playful, photo-friendly pastel room with soft textures, flattering lighting and carefully curated display areas.',features:['Pastel palette','Soft lighting','Fluffy rugs','Mirrors','Display shelves','Cute themed décor']},
   {name:'Anime Room',emoji:'👾',cat:'entertainment',price:'RM7,000–RM25,000+',img:'neon_cyberpunk_gaming_bedroom.webp',tone:'vivid',desc:'A collector-friendly anime room with integrated display, lighting and themed décor without losing bedroom function.',features:['Display shelves','Figurine lighting','RGB accents','Poster / art walls','Themed bedding','Collector storage']},
   {name:'Sports Fan Room',emoji:'⚽',cat:'entertainment',price:'RM7,000–RM25,000+',img:'ultimate_sports_man_cave_lounge.webp',tone:'vivid',desc:'A personalised fan cave built around the customer’s club, memorabilia, match viewing and entertainment setup.',features:['Club colour palette','Jersey displays','Memorabilia cases','TV viewing zone','Themed lighting','Lounge seating']},
-  {name:'Car Enthusiast Room',emoji:'🚗',cat:'entertainment',price:'RM9,000–RM30,000+',img:'ultimate_sports_man_cave_lounge.webp',tone:'warm',desc:'A motorsport-inspired personal space with model displays, automotive textures and garage-style details.',features:['Automotive artwork','Model-car displays','Racing-inspired furniture','Neon signage','Industrial accents','Display lighting']},
+  {name:'Car Enthusiast Room',emoji:'🚆',cat:'entertainment',price:'RM9,000–RM30,000+',img:'ultimate_sports_man_cave_lounge.webp',tone:'warm',desc:'A motorsport-inspired personal space with model displays, automotive textures and garage-style details.',features:['Automotive artwork','Model-car displays','Racing-inspired furniture','Neon signage','Industrial accents','Display lighting']},
   {name:'Sneaker / Fashion Room',emoji:'👟',cat:'lifestyle',price:'RM10,000–RM35,000+',img:'dreamy_pastel_kawaii_bedroom.webp',tone:'cool',desc:'A boutique-style room that turns shoes and clothing into part of the interior through illuminated organised display.',features:['Illuminated shoe displays','Clothing racks','Mirrors','Custom shelving','Boutique lighting','Dressing zone']},
-  {name:'Princess / Glam Room',emoji:'👑',cat:'family',price:'RM8,000–RM28,000+',img:'dreamy_pastel_kawaii_bedroom.webp',tone:'soft',desc:'An elegant glam room with vanity lighting, soft furnishing, organised wardrobe areas and strong statement pieces.',features:['Vanity station','Mirror lighting','Soft furnishings','Wardrobe organisation','Decorative lighting','Statement décor']},
+  {name:'Princess / Glam Room',emoji:'👩',cat:'family',price:'RM8,000–RM28,000+',img:'dreamy_pastel_kawaii_bedroom.webp',tone:'soft',desc:'An elegant glam room with vanity lighting, soft furnishing, organised wardrobe areas and strong statement pieces.',features:['Vanity station','Mirror lighting','Soft furnishings','Wardrobe organisation','Decorative lighting','Statement décor']},
   {name:'Kids Fantasy Room',emoji:'🧸',cat:'family',price:'RM8,000–RM30,000+',img:'cozy_fantasy_children_s_bedroom_workspace.webp',tone:'vivid',desc:'A personalised imaginative room built around a child’s favourite world — space, dinosaurs, ocean, heroes, jungle or an original theme.',features:['Custom theme concept','Feature walls / murals','Play & sleep zoning','Creative lighting','Child-friendly storage','Themed accessories']},
-  {name:'Baby / Nursery Room',emoji:'👶',cat:'family',price:'RM7,000–RM25,000+',img:'tropical_eco_luxe_bedroom_retreat.webp',tone:'soft',desc:'A calm nursery designed around safe circulation, storage, feeding, sleep and soothing light.',features:['Cot zone','Changing / storage area','Calming palette','Soft lighting','Feeding chair zone','Personalised décor']},
+  {name:'Baby / Nursery Room',emoji:'🐶',cat:'family',price:'RM7,000–RM25,000+',img:'tropical_eco_luxe_bedroom_retreat.webp',tone:'soft',desc:'A calm nursery designed around safe circulation, storage, feeding, sleep and soothing light.',features:['Cot zone','Changing / storage area','Calming palette','Soft lighting','Feeding chair zone','Personalised décor']},
   {name:'Creative Studio',emoji:'🎨',cat:'work',price:'RM7,000–RM25,000+',img:'moody_orange_lit_creator_studio.webp',tone:'vivid',desc:'A flexible room for artists and makers with adjustable lighting, accessible tools and surfaces that can handle creative work.',features:['Art / maker desk','Equipment storage','Inspirational wall','Adjustable lighting','Display area','Organised supply storage']},
   {name:'Content Creator Room',emoji:'📸',cat:'work',price:'RM9,000–RM30,000+',img:'moody_orange_lit_creator_studio.webp',tone:'vivid',desc:'A multi-angle room designed to look good on camera with several usable backgrounds, lighting positions and prop storage.',features:['Multiple filming backgrounds','Ring / video lighting','Prop storage','Camera positions','Acoustic treatment options','Editing workstation']},
   {name:'Bachelor Pad',emoji:'👔',cat:'lifestyle',price:'RM10,000–RM35,000+',img:'moody_luxury_bedroom_with_orange_accents.webp',tone:'cool',desc:'A contemporary, masculine retreat that blends bedroom comfort, entertainment and smart storage.',features:['Contemporary furniture','Entertainment zone','Mood lighting','Bar-style feature options','Smart storage','Statement wall']},
-  {name:'Beauty / Makeup Room',emoji:'💄',cat:'lifestyle',price:'RM7,000–RM25,000+',img:'dreamy_pastel_kawaii_bedroom.webp',tone:'soft',desc:'A flattering, organised beauty room built around mirror lighting, product storage and a comfortable preparation station.',features:['Illuminated vanity','Makeup storage','Large mirrors','Product display','Flattering lighting','Comfortable seating']},
+  {name:'Beauty / Makeup Room',emoji:'💍',cat:'lifestyle',price:'RM7,000–RM25,000+',img:'dreamy_pastel_kawaii_bedroom.webp',tone:'soft',desc:'A flattering, organised beauty room built around mirror lighting, product storage and a comfortable preparation station.',features:['Illuminated vanity','Makeup storage','Large mirrors','Product display','Flattering lighting','Comfortable seating']},
   {name:'Walk-In Wardrobe Transformation',emoji:'👗',cat:'premium',price:'RM12,000–RM45,000+',img:'tropical_eco_luxe_bedroom_retreat.webp',tone:'soft',desc:'A dressing-room transformation focused on custom storage, visibility, mirrors, shoe display and premium lighting.',features:['Custom wardrobes / racks','Shoe displays','Full-length mirrors','Integrated lighting','Accessory storage','Dressing area']},
-  {name:'Chill Lounge Room',emoji:'☕',cat:'lifestyle',price:'RM6,000–RM22,000+',img:'sunlit_bohemian_jungle_conservatory.webp',tone:'warm',desc:'A comfortable escape for conversation, music, reading or doing absolutely nothing — intentionally.',features:['Sofa / beanbag seating','Coffee table','Ambient lighting','Speakers','Artwork','Relaxed soft furnishings']},
-  {name:'Party Room',emoji:'🪩',cat:'entertainment',price:'RM10,000–RM35,000+',img:'neon_cyberpunk_gaming_bedroom.webp',tone:'vivid',desc:'A private entertaining space built around music, reactive lighting, durable finishes and social seating.',features:['Music-reactive LEDs','Speaker system','Disco / effect lighting','Neon signs','Entertaining layout','Durable surfaces']},
-  {name:'Productivity Room',emoji:'🧠',cat:'work',price:'RM5,000–RM18,000+',img:'moody_charcoal_home_office_with_amber_glow.webp',tone:'cool',desc:'A disciplined workstation with planning surfaces, organisation and lighting chosen to reduce visual distraction.',features:['Clean workstation','Planning boards','Task lighting','Organisation systems','Hidden cable routing','Minimal distraction layout']},
+  {name:'Chill Lounge Room',emoji:'☕ ',cat:'lifestyle',price:'RM6,000–RM22,000+',img:'sunlit_bohemian_jungle_conservatory.webp',tone:'warm',desc:'A comfortable escape for conversation, music, reading or doing absolutely nothing — intentionally.',features:['Sofa / beanbag seating','Coffee table','Ambient lighting','Speakers','Artwork','Relaxed soft furnishings']},
+  {name:'Party Room',emoji:'🦩',cat:'entertainment',price:'RM10,000–RM35,000+',img:'neon_cyberpunk_gaming_bedroom.webp',tone:'vivid',desc:'A private entertaining space built around music, reactive lighting, durable finishes and social seating.',features:['Music-reactive LEDs','Speaker system','Disco / effect lighting','Neon signs','Entertaining layout','Durable surfaces']},
+  {name:'Productivity Room',emoji:'🧀',cat:'work',price:'RM5,000–RM18,000+',img:'moody_charcoal_home_office_with_amber_glow.webp',tone:'cool',desc:'A disciplined workstation with planning surfaces, organisation and lighting chosen to reduce visual distraction.',features:['Clean workstation','Planning boards','Task lighting','Organisation systems','Hidden cable routing','Minimal distraction layout']},
   {name:'Galaxy / Space Room',emoji:'🌌',cat:'family',price:'RM7,000–RM25,000+',img:'neon_cyberpunk_gaming_bedroom.webp',tone:'vivid',desc:'An immersive futuristic room using projected stars, LED effects and space-inspired surfaces.',features:['Galaxy projector','LED strips','Star ceiling effects','Futuristic décor','Themed wall design','Display lighting']},
   {name:'Resort / Bali Room',emoji:'🏝️',cat:'wellness',price:'RM8,000–RM28,000+',img:'tropical_eco_luxe_bedroom_retreat.webp',tone:'soft',desc:'A warm tropical retreat combining natural wood, woven textures, greenery and resort-like ambient lighting.',features:['Natural wood details','Plants','Woven décor','Warm lamps','Tropical textures','Resort-inspired bedding']},
   {name:'Fantasy Room',emoji:'🧙',cat:'family',price:'RM10,000–RM40,000+',img:'cozy_fantasy_children_s_bedroom_workspace.webp',tone:'vivid',desc:'A fully themed room inspired by medieval, gothic, magical or enchanted worlds, designed as an original customer-specific concept.',features:['Original fantasy theme','Atmospheric wall treatment','Custom lighting','Display pieces','Themed furniture details','Immersive accessories']},
   {name:'Airbnb Room Makeover',emoji:'🏨',cat:'premium',price:'RM6,000–RM25,000+',img:'tropical_eco_luxe_bedroom_retreat.webp',tone:'soft',desc:'A photogenic, practical refresh designed to help a rental room present better in listings and guest photos.',features:['Listing-friendly styling','Durable furniture','Statement photo corner','Lighting improvements','Storage for guests','Easy-maintenance finishes']},
-  {name:'Complete Bedroom Rescue',emoji:'🛏️',cat:'premium',price:'RM6,000–RM30,000+',img:'moody_black_and_orange_gaming_retreat.webp',tone:'warm',desc:'For customers who know the room needs help but do not know what style to choose. TRP develops the direction around personality, use and budget.',features:['Room diagnosis','Style recommendation','Priority-based budget plan','Furniture & lighting plan','Decorative transformation','Full TRP coordination']}
+  {name:'Complete Bedroom Rescue',emoji:'🛏️',cat:'premium',price:'RM6,000–RM30,000+',img:'moody_black_and_orange_gaming_retreat.webp',tone:'warm',desc:'For customers who know the room needs help but do not know what style to choose. TRP develops the direction around personality, use and budget.',features:['Room diagnosis','Style recommendation','Priority-based budget pla6','Furniture & lighting plan','Decorative transformation','Full TRP coordination']}
 ];
 
 const grid = document.getElementById('roomGrid');
 const formRoom = document.getElementById('formRoom');
 function renderRooms(filter='all'){
+  currentFilter=filter;
   const list = filter==='all' ? roomTypes : roomTypes.filter(r=>r.cat===filter);
   grid.innerHTML = list.map((r)=>`<article class="room-card tone-${r.tone}" data-name="${r.name.replaceAll('"','&quot;')}">
     <img loading="lazy" src="assets/images/${r.img}" alt="Concept visual for ${r.name}" />
-    <div class="room-card-content"><div class="room-card-top"><span class="room-emoji">${r.emoji}</span><span class="room-price">${r.price}</span></div>
+    <div class="room-card-content"><div class="room-card-top"><span class="room-emoji">${r.emoji}</span><span class="room-price">${convertPriceRange(r.price)}</span></div>
     <h3>${r.name}</h3><p>${r.desc}</p><button type="button" data-room="${encodeURIComponent(r.name)}">View concept <span>→</span></button></div>
   </article>`).join('');
 }
 renderRooms();
-roomTypes.forEach(r=>{const o=document.createElement('option');o.value=r.name;o.textContent=`${r.emoji} ${r.name} — ${r.price}`;formRoom.appendChild(o)});
+roomTypes.forEach(r=>{const o=document.createElement('option');o.value=r.name;o.textContent=`${r.emoji} ${r.name} — ${convertPriceRange(r.price)}`;formRoom.appendChild(o)});
+rebuildBudgetOptions();
+const currencySelect=document.getElementById('currencySelect');
+if(currencySelect){currencySelect.value=activeCurrency;currencySelect.addEventListener('change',()=>{activeCurrency=currencySelect.value;const currentFilter=document.querySelector('.filter-btn.active')?.dataset.filter||'all';renderRooms(currentFilter);formRoom.innerHTML='<option value="">Choose a room type</option>';roomTypes.forEach(r=>{const o=document.createElement('option');o.value=r.name;o.textContent=`${r.emoji} ${r.name} — ${convertPriceRange(r.price)}`;formRoom.appendChild(o)});rebuildBudgetOptions();});}
 
 document.getElementById('filters').addEventListener('click',e=>{const b=e.target.closest('[data-filter]');if(!b)return;document.querySelectorAll('.filter-btn').forEach(x=>x.classList.remove('active'));b.classList.add('active');renderRooms(b.dataset.filter)});
 
 const modal=document.getElementById('roomModal');
-function openRoom(name){const r=roomTypes.find(x=>x.name===name);if(!r)return;document.getElementById('modalImage').src=`assets/images/${r.img}`;document.getElementById('modalImage').alt=`Concept visual for ${r.name}`;document.getElementById('modalCategory').textContent=r.cat.replace('work','work & create');document.getElementById('modalEmoji').textContent=`${r.emoji} ROOM CONCEPT`;document.getElementById('modalTitle').textContent=r.name;document.getElementById('modalPrice').textContent=`Estimated ${r.price}`;document.getElementById('modalDescription').textContent=r.desc;document.getElementById('modalFeatures').innerHTML=r.features.map(f=>`<li>${f}</li>`).join('');formRoom.value=r.name;modal.classList.add('open');modal.setAttribute('aria-hidden','false');document.body.classList.add('modal-open')}
+function openRoom(name){const r=roomTypes.find(x=>x.name===name);if(!r)return;document.getElementById('modalImage').src=`assets/images/${r.img}`;document.getElementById('modalImage').alt=`Concept visual for ${r.name}`;document.getElementById('modalCategory').textContent=r.cat.replace('work','work & create');document.getElementById('modalEmoji').textContent=`${r.emoji} ROOM CONCEPT`;document.getElementById('modalTitle').textContent=r.name;document.getElementById('modalPrice').textContent=`Estimated ${convertPriceRange(r.price)} ${activeCurrency}`;document.getElementById('modalDescription').textContent=r.desc;document.getElementById('modalFeatures').innerHTML=r.features.map(f=>`<li>${f}</li>`).join('');formRoom.value=r.name;modal.classList.add('open');modal.setAttribute('aria-hidden','false');document.body.classList.add('modal-open')}
 grid.addEventListener('click',e=>{const b=e.target.closest('[data-room]');if(b)openRoom(decodeURIComponent(b.dataset.room))});
 function closeModal(){modal.classList.remove('open');modal.setAttribute('aria-hidden','true');document.body.classList.remove('modal-open')}
 document.querySelectorAll('[data-close-modal]').forEach(el=>el.addEventListener('click',closeModal));document.getElementById('modalStart').addEventListener('click',closeModal);document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal()});
@@ -58,7 +101,7 @@ document.querySelectorAll('[data-close-modal]').forEach(el=>el.addEventListener(
 const navToggle=document.querySelector('.nav-toggle'),nav=document.querySelector('.main-nav');navToggle.addEventListener('click',()=>{const open=nav.classList.toggle('open');navToggle.setAttribute('aria-expanded',open)});nav.addEventListener('click',e=>{if(e.target.tagName==='A')nav.classList.remove('open')});
 
 const projectForm=document.getElementById('projectForm'), briefWrap=document.getElementById('briefWrap'), briefOutput=document.getElementById('briefOutput');
-projectForm.addEventListener('submit',e=>{e.preventDefault();const chosen=roomTypes.find(r=>r.name===formRoom.value);const brief=`TRP — THE ROOM PROJECT\nDRAFT CUSTOMER PROJECT BRIEF\n\nRoom concept: ${formRoom.value}\nIndicative website range: ${chosen?.price || 'To be assessed'}\nLocation: ${document.getElementById('formLocation').value}\nRoom size: ${document.getElementById('formSize').value}\nWorking budget: ${document.getElementById('formBudget').value}\nDesired scope: ${document.getElementById('formScope').value}\n\nCustomer vision / must-haves:\n${document.getElementById('formVision').value || 'Not provided yet'}\n\nIMPORTANT: This is an initial project brief, not a quotation. Final scope and pricing require TRP assessment and confirmation from the relevant specialist partners and suppliers.`;briefOutput.textContent=brief;briefWrap.hidden=false;briefWrap.scrollIntoView({behavior:'smooth',block:'center'})});
+projectForm.addEventListener('submit',e=>{e.preventDefault();const chosen=roomTypes.find(r=>r.name===formRoom.value);const brief=`TRP — THE ROOM PROJECT\nDRAFT CUSTOMER PROJECT BRIEF\n\nRoom concept: ${formRoom.value}\nIndicative website range: ${chosen ? convertPriceRange(chosen.price)+' '+activeCurrency : 'To be assessed'}\nLocation: ${document.getElementById('formLocation').value}\nRoom size: ${document.getElementById('formSize').value}\nWorking budget: ${document.getElementById('formBudget').value}\nDesired scope: ${document.getElementById('formScope').value}\n\nCustomer vision / must-haves:\n${document.getElementById('formVision').value || 'Not provided yet'}\n\nIMPORTANT: This is an initial project brief, not a quotation. Final scope and pricing require TRP assessment and confirmation from the relevant specialist partners and suppliers.`;briefOutput.textContent=brief;briefWrap.hidden=false;briefWrap.scrollIntoView({behavior:'smooth',block:'center'})});
 document.getElementById('copyBrief').addEventListener('click',async e=>{await navigator.clipboard.writeText(briefOutput.textContent);const old=e.target.textContent;e.target.textContent='Copied ✓';setTimeout(()=>e.target.textContent=old,1400)});
 
 document.getElementById('year').textContent=new Date().getFullYear();
