@@ -81,7 +81,18 @@
             <h2>What should your room become?</h2>
             <p>Every image below is a visual concept direction. Final designs are personalised to the actual room, customer preferences, selected materials and available budget.</p>
           </div>
-          <div class="price-legend"><span>RM</span> Estimated from-scratch ranges</div>
+          <div class="currency-control" aria-label="Currency converter">
+            <label for="currencySelect">Currency</label>
+            <select id="currencySelect" aria-label="Display prices in currency">
+              <option value="USD" selected>USD $</option>
+              <option value="MYR">MYR RM</option>
+              <option value="SGD">SGD S$</option>
+              <option value="GBP">GBP £</option>
+              <option value="EUR">EUR €</option>
+              <option value="AUD">AUD A$</option>
+            </select>
+            <small>Indicative converted estimates</small>
+          </div>
         </div>
 
         <div class="filters reveal" id="filters" aria-label="Filter room types">
@@ -100,7 +111,7 @@
           <div class="disclaimer-icon">!</div>
           <div>
             <strong>Important pricing disclaimer</strong>
-            <p>All prices shown on this website are rough planning estimates only and are <b>not confirmed quotations</b>. They represent an indicative cost for creating a room of this nature broadly from scratch in Malaysia. Final pricing is confirmed only after TRP assesses the actual room, agrees the final scope with the customer, and receives written pricing/availability confirmation from the exclusive and specialised contractors, suppliers and service partners assigned to the project. Room size, current condition, location, demolition, electrical or structural work, custom carpentry, furniture, technology, selected finishes, delivery, labour and customer changes can increase or reduce the final price.</p>
+            <p>All prices shown on this website are rough planning estimates only and are <b>not confirmed quotations</b>. They represent an indicative cost for creating a room of this nature broadly from scratch in Malaysia. Final pricing is confirmed only after TRP assesses the actual room, agrees the final scope with the customer, and receives written pricing/availability confirmation from the exclusive and specialised contractors, suppliers and service partners assigned to the project. Room size, current condition, location, demolition, electrical or structural work, custom carpentry, furniture, technology, selected finishes, delivery, labour and customer changes can increase or reduce the final price. Currency conversions are indicative only and use reference exchange rates last updated 11 August 2026; actual billing and settlement rates may differ.</p>
           </div>
         </div>
       </div>
@@ -205,7 +216,7 @@
           </div>
           <div class="form-row">
             <label>Working budget
-              <select id="formBudget" required><option value="">Choose a range</option><option>Below RM5,000</option><option>RM5,000–RM10,000</option><option>RM10,000–RM20,000</option><option>RM20,000–RM40,000</option><option>RM40,000+</option><option>I need TRP to advise me</option></select>
+              <select id="formBudget" required><option value="">Choose a range</option></select>
             </label>
             <label>Desired scope
               <select id="formScope" required><option value="">Choose scope</option><option>Room Refresh</option><option>Full Transformation</option><option>Signature Project</option><option>Not sure — recommend for me</option></select>
