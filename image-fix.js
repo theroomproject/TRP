@@ -1,6 +1,28 @@
-const TRP_CONCEPT_SPRITE='assets/images/trp-room-concepts.jpg?v=5';
-const TRP_POSITIONS=['0% 0%','33.333% 0%','66.667% 0%','100% 0%','0% 33.333%','33.333% 33.333%','66.667% 33.333%','100% 33.333%','0% 66.667%','33.333% 66.667%','66.667% 66.667%','100% 66.667%'];
+// TRP text-first room catalogue with sharp, on-demand concept imagery.
+// Images are loaded only when a customer opens a room concept.
 
+const TRP_VISUALS={
+  gaming:'https://unsplash.com/photos/LFVBohYmtgc/download?force=true&w=1600',
+  luxury:'https://unsplash.com/photos/FwKxATzkzmM/download?force=true&w=1600',
+  office:'https://unsplash.com/photos/teRVpNnlR_c/download?force=true&w=1600',
+  zen:'https://unsplash.com/photos/J-N6H44Jdkw/download?force=true&w=1600',
+  jungle:'https://unsplash.com/photos/c7Pz9JbR4ZM/download?force=true&w=1600',
+  pastel:'https://unsplash.com/photos/Si83c0apHok/download?force=true&w=1600',
+  cinema:'https://unsplash.com/photos/HHQ2cZTMwtc/download?force=true&w=1600'
+};
+
+function trpVisualForRoom(r){
+  const n=r.name.toLowerCase();
+  if(n.includes('cinema')) return TRP_VISUALS.cinema;
+  if(n.includes('gaming')||n.includes('anime')||n.includes('party')||n.includes('galaxy')||n.includes('sports')||n.includes('car enthusiast')) return TRP_VISUALS.gaming;
+  if(n.includes('office')||n.includes('study')||n.includes('productivity')||n.includes('podcast')||n.includes('streaming')||n.includes('creative studio')||n.includes('content creator')) return TRP_VISUALS.office;
+  if(n.includes('zen')||n.includes('meditation')||n.includes('prayer')||n.includes('spiritual')) return TRP_VISUALS.zen;
+  if(n.includes('nature')||n.includes('jungle')||n.includes('resort')||n.includes('bali')) return TRP_VISUALS.jungle;
+  if(n.includes('pastel')||n.includes('princess')||n.includes('glam')||n.includes('beauty')||n.includes('makeup')||n.includes('nursery')||n.includes('kids')) return TRP_VISUALS.pastel;
+  return TRP_VISUALS.luxury;
+}
+
+// Reduce only the STARTING estimate by 20%; preserve the original maximum.
 convertPriceRange=function(price){
   const nums=[...price.matchAll(/[\d,]+/g)].map(m=>Number(m[0].replaceAll(',','')));
   if(!nums.length) return price;
@@ -13,8 +35,8 @@ convertPriceRange=function(price){
 const trpStyle=document.createElement('style');
 trpStyle.textContent=`
 .room-card{min-height:285px;display:flex;overflow:hidden}.room-card>img{display:none!important}.room-card-content{display:flex!important;flex-direction:column;flex:1;padding:28px!important}.room-card-content h3{margin-top:14px}.room-card-content p{margin-bottom:18px}.room-card-content button{margin-top:auto}.room-feature-preview{display:flex;flex-wrap:wrap;gap:7px;margin:0 0 22px;padding:0;list-style:none}.room-feature-preview li{font-size:.72rem;line-height:1.2;padding:7px 9px;border:1px solid rgba(255,255,255,.12);border-radius:999px;color:rgba(255,255,255,.72);background:rgba(255,255,255,.035)}.room-concept-label{font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;color:#ff8a24;font-weight:800}
-.modal-panel{grid-template-columns:minmax(360px,520px) 1fr!important;align-items:center!important}.modal-image-wrap{display:block!important;width:100%!important;aspect-ratio:16/9!important;min-height:0!important;background-repeat:no-repeat!important;background-size:400% 400%!important;background-color:#111!important;align-self:center!important}.modal-image-wrap img{display:none!important}.modal-gradient{background:linear-gradient(0deg,rgba(0,0,0,.6),transparent 48%)!important}
-@media(max-width:980px){.modal-panel{grid-template-columns:1fr!important;max-width:720px!important}.modal-image-wrap{aspect-ratio:16/9!important;min-height:0!important}}@media(max-width:650px){.room-card{min-height:0}.room-card-content{padding:22px!important}.modal-image-wrap{aspect-ratio:16/9!important;min-height:0!important}}
+.modal-panel{grid-template-columns:minmax(420px,1.05fr) .95fr!important;align-items:stretch!important}.modal-image-wrap{display:block!important;position:relative!important;min-height:590px!important;background:#111!important;overflow:hidden!important}.modal-image-wrap img{display:block!important;position:absolute!important;inset:0!important;width:100%!important;height:100%!important;min-height:0!important;object-fit:cover!important;object-position:center!important;filter:none!important;image-rendering:auto!important}.modal-gradient{display:block!important}.modal-visual-note{position:absolute;left:18px;top:18px;z-index:2;background:rgba(0,0,0,.72);border:1px solid rgba(255,255,255,.16);border-radius:8px;padding:7px 9px;color:#fff;font-size:.62rem;letter-spacing:.11em;text-transform:uppercase;font-weight:800}
+@media(max-width:980px){.modal-panel{grid-template-columns:1fr!important;max-width:720px!important}.modal-image-wrap{min-height:360px!important}}@media(max-width:650px){.room-card{min-height:0}.room-card-content{padding:22px!important}.modal-image-wrap{min-height:280px!important}}
 `;
 document.head.appendChild(trpStyle);
 
@@ -25,11 +47,23 @@ function renderTRPTextRooms(filter='all'){
 
 function openTRPTextRoom(name){
   const r=roomTypes.find(x=>x.name===name);if(!r)return;
-  const index=roomTypes.findIndex(x=>x.name===name);
   const wrap=document.querySelector('.modal-image-wrap');
   const img=document.getElementById('modalImage');
-  if(wrap){wrap.style.display='block';wrap.style.backgroundImage=`url("${TRP_CONCEPT_SPRITE}")`;wrap.style.backgroundSize='400% 400%';wrap.style.backgroundPosition=TRP_POSITIONS[index%TRP_POSITIONS.length];wrap.style.backgroundRepeat='no-repeat';}
-  if(img){img.style.display='none';img.removeAttribute('src');}
+  if(wrap){
+    wrap.style.display='block';
+    wrap.style.background='#111';
+    let note=wrap.querySelector('.modal-visual-note');
+    if(!note){note=document.createElement('span');note.className='modal-visual-note';note.textContent='Visual inspiration';wrap.appendChild(note);}
+  }
+  if(img){
+    img.style.display='block';
+    img.alt=`Visual inspiration for ${r.name}`;
+    img.src=trpVisualForRoom(r);
+    img.onerror=()=>{
+      img.onerror=null;
+      img.src=TRP_VISUALS.luxury;
+    };
+  }
   document.getElementById('modalCategory').textContent=r.cat.replace('work','work & create');
   document.getElementById('modalEmoji').textContent=`${r.emoji} ROOM CONCEPT`;
   document.getElementById('modalTitle').textContent=r.name;
@@ -42,4 +76,4 @@ function openTRPTextRoom(name){
 renderRooms=renderTRPTextRooms;openRoom=openTRPTextRoom;
 renderTRPTextRooms(document.querySelector('.filter-btn.active')?.dataset.filter||'all');
 if(formRoom){const selected=formRoom.value;formRoom.innerHTML='<option value="">Choose a room type</option>';roomTypes.forEach(r=>{const o=document.createElement('option');o.value=r.name;o.textContent=`${r.emoji} ${r.name} — ${convertPriceRange(r.price)}`;formRoom.appendChild(o)});if([...formRoom.options].some(o=>o.value===selected))formRoom.value=selected;}
-const roomsIntro=document.querySelector('#rooms .section-head p');if(roomsIntro)roomsIntro.textContent='Explore the room concepts below for ideas, estimated pricing and possible features. Click any concept to view visual inspiration and the full details. Final designs are personalised to the actual room, customer preferences, selected materials and available budget.';
+const roomsIntro=document.querySelector('#rooms .section-head p');if(roomsIntro)roomsIntro.textContent='Explore the room concepts below for ideas, estimated pricing and possible features. Click any concept to view a sharp visual inspiration image and the full details. Final designs are personalised to the actual room, customer preferences, selected materials and available budget.';
