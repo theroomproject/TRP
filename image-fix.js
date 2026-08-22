@@ -1,16 +1,19 @@
-// TRP text-first room catalogue with original TRP visual concepts in the popup.
-// Main room cards stay text-only. Modal visuals render through canvas to avoid legacy image CSS conflicts.
+// TRP room catalogue: text-only cards, standalone original TRP visuals in room modal.
 
-const TRP_MASTER_VISUAL='assets/images/trp-originals-master.jpg?v=20260823d';
-const TRP_VISUAL_TILES={
-  gaming:[0,0], luxury:[1,0], prayer:[2,0], zen:[3,0],
-  cinema:[0,1], creator:[1,1], office:[2,1], jungle:[3,1],
-  pastel:[0,2], kids:[1,2], tropical:[2,2], sports:[3,2]
+const TRP_ROOM_VISUALS={
+  gaming:'assets/room-types/gaming.svg?v=20260823f',
+  luxury:'assets/room-types/luxury.svg?v=20260823f',
+  prayer:'assets/room-types/prayer.svg?v=20260823f',
+  zen:'assets/room-types/zen.svg?v=20260823f',
+  cinema:'assets/room-types/cinema.svg?v=20260823f',
+  creator:'assets/room-types/creator.svg?v=20260823f',
+  office:'assets/room-types/office.svg?v=20260823f',
+  kids:'assets/room-types/kids.svg?v=20260823f',
+  jungle:'assets/room-types/jungle.svg?v=20260823f',
+  tropical:'assets/room-types/tropical.svg?v=20260823f',
+  pastel:'assets/room-types/pastel.svg?v=20260823f',
+  sports:'assets/room-types/sports.svg?v=20260823f'
 };
-
-const trpMasterImage=new Image();
-trpMasterImage.decoding='async';
-trpMasterImage.src=TRP_MASTER_VISUAL;
 
 function trpVisualKeyForRoom(r){
   const n=r.name.toLowerCase();
@@ -19,10 +22,10 @@ function trpVisualKeyForRoom(r){
   if(n.includes('zen')||n.includes('meditation')) return 'zen';
   if(n.includes('podcast')||n.includes('streaming')||n.includes('music')||n.includes('creative studio')||n.includes('content creator')) return 'creator';
   if(n.includes('office')||n.includes('study')||n.includes('productivity')) return 'office';
-  if(n.includes('nature')||n.includes('jungle')||n.includes('chill lounge')) return 'jungle';
-  if(n.includes('pastel')||n.includes('princess')||n.includes('glam')||n.includes('beauty')||n.includes('makeup')||n.includes('nursery')) return 'pastel';
   if(n.includes('kids')||n.includes('fantasy')) return 'kids';
+  if(n.includes('nature')||n.includes('jungle')||n.includes('chill lounge')) return 'jungle';
   if(n.includes('resort')||n.includes('bali')||n.includes('airbnb')||n.includes('walk-in wardrobe')) return 'tropical';
+  if(n.includes('pastel')||n.includes('princess')||n.includes('glam')||n.includes('beauty')||n.includes('makeup')||n.includes('nursery')) return 'pastel';
   if(n.includes('sports')||n.includes('car enthusiast')||n.includes('sneaker')||n.includes('fashion')) return 'sports';
   if(n.includes('gaming')||n.includes('anime')||n.includes('party')||n.includes('galaxy')||n.includes('space')) return 'gaming';
   return 'luxury';
@@ -40,40 +43,10 @@ convertPriceRange=function(price){
 const trpStyle=document.createElement('style');
 trpStyle.textContent=`
 .room-card{min-height:285px;display:flex;overflow:hidden}.room-card>img{display:none!important}.room-card-content{display:flex!important;flex-direction:column;flex:1;padding:28px!important}.room-card-content h3{margin-top:14px}.room-card-content p{margin-bottom:18px}.room-card-content button{margin-top:auto}.room-feature-preview{display:flex;flex-wrap:wrap;gap:7px;margin:0 0 22px;padding:0;list-style:none}.room-feature-preview li{font-size:.72rem;line-height:1.2;padding:7px 9px;border:1px solid rgba(255,255,255,.12);border-radius:999px;color:rgba(255,255,255,.72);background:rgba(255,255,255,.035)}.room-concept-label{font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;color:#ff8a24;font-weight:800}
-.modal-panel{grid-template-columns:minmax(420px,600px) minmax(0,1fr)!important;align-items:start!important;max-width:1240px!important}.modal-image-wrap{display:block!important;position:relative!important;width:100%!important;height:auto!important;min-height:0!important;max-height:none!important;aspect-ratio:auto!important;align-self:start!important;background:#0b0b0d!important;overflow:hidden!important}.modal-image-wrap>img{display:none!important}.trp-room-canvas{display:block!important;width:100%!important;height:auto!important;max-width:100%!important;aspect-ratio:4/3!important;background:#111!important}.modal-gradient{position:absolute!important;inset:0!important;display:block!important;background:linear-gradient(0deg,rgba(0,0,0,.48),transparent 42%)!important;pointer-events:none!important}.modal-category{position:absolute!important;left:18px!important;bottom:18px!important;z-index:3!important}.modal-visual-note{position:absolute;left:18px;top:18px;z-index:3;background:rgba(0,0,0,.72);border:1px solid rgba(255,255,255,.16);border-radius:8px;padding:7px 9px;color:#fff;font-size:.62rem;letter-spacing:.11em;text-transform:uppercase;font-weight:800}
-@media(max-width:980px){.modal-panel{grid-template-columns:1fr!important;max-width:760px!important}.modal-image-wrap{width:100%!important;height:auto!important;aspect-ratio:auto!important}}@media(max-width:650px){.room-card{min-height:0}.room-card-content{padding:22px!important}.modal-image-wrap{width:100%!important;height:auto!important;aspect-ratio:auto!important}}
+.modal-panel{grid-template-columns:minmax(420px,600px) minmax(0,1fr)!important;align-items:start!important;max-width:1240px!important}.modal-image-wrap{display:block!important;position:relative!important;width:100%!important;height:auto!important;min-height:0!important;max-height:none!important;aspect-ratio:auto!important;align-self:start!important;background:#0b0b0d!important;overflow:hidden!important}.modal-image-wrap>img{display:block!important;position:static!important;inset:auto!important;width:100%!important;height:auto!important;min-height:0!important;max-height:none!important;max-width:100%!important;object-fit:contain!important;object-position:center!important;filter:none!important;transform:none!important}.trp-room-canvas{display:none!important}.modal-gradient{position:absolute!important;inset:0!important;display:block!important;background:linear-gradient(0deg,rgba(0,0,0,.48),transparent 42%)!important;pointer-events:none!important}.modal-category{position:absolute!important;left:18px!important;bottom:18px!important;z-index:3!important}.modal-visual-note{position:absolute;left:18px;top:18px;z-index:3;background:rgba(0,0,0,.72);border:1px solid rgba(255,255,255,.16);border-radius:8px;padding:7px 9px;color:#fff;font-size:.62rem;letter-spacing:.11em;text-transform:uppercase;font-weight:800}
+@media(max-width:980px){.modal-panel{grid-template-columns:1fr!important;max-width:760px!important}.modal-image-wrap{width:100%!important}}@media(max-width:650px){.room-card{min-height:0}.room-card-content{padding:22px!important}.modal-image-wrap{width:100%!important}}
 `;
 document.head.appendChild(trpStyle);
-
-function renderTRPTextRooms(filter='all'){
-  const list=filter==='all'?roomTypes:roomTypes.filter(r=>r.cat===filter);
-  grid.innerHTML=list.map(r=>`<article class="room-card tone-${r.tone}" data-name="${r.name.replaceAll('"','&quot;')}"><div class="room-card-content"><div class="room-card-top"><span class="room-emoji">${r.emoji}</span><span class="room-price">${convertPriceRange(r.price)}</span></div><span class="room-concept-label">Room concept</span><h3>${r.name}</h3><p>${r.desc}</p><ul class="room-feature-preview">${r.features.slice(0,3).map(f=>`<li>${f}</li>`).join('')}</ul><button type="button" data-room="${encodeURIComponent(r.name)}">View concept image & details <span>→</span></button></div></article>`).join('');
-}
-
-function drawTRPRoomVisual(wrap,key){
-  let canvas=wrap.querySelector('.trp-room-canvas');
-  if(!canvas){
-    canvas=document.createElement('canvas');
-    canvas.className='trp-room-canvas';
-    canvas.setAttribute('aria-hidden','true');
-    wrap.insertBefore(canvas,wrap.firstChild);
-  }
-  canvas.width=800;
-  canvas.height=600;
-  const ctx=canvas.getContext('2d',{alpha:false});
-  ctx.fillStyle='#111';ctx.fillRect(0,0,800,600);
-  const render=()=>{
-    const tile=TRP_VISUAL_TILES[key]||TRP_VISUAL_TILES.luxury;
-    const sw=trpMasterImage.naturalWidth/4;
-    const sh=trpMasterImage.naturalHeight/3;
-    ctx.clearRect(0,0,800,600);
-    ctx.imageSmoothingEnabled=true;
-    ctx.imageSmoothingQuality='high';
-    ctx.drawImage(trpMasterImage,tile[0]*sw,tile[1]*sh,sw,sh,0,0,800,600);
-  };
-  if(trpMasterImage.complete&&trpMasterImage.naturalWidth){render();}
-  else trpMasterImage.addEventListener('load',render,{once:true});
-}
 
 function renderTRPTextRooms(filter='all'){
   const list=filter==='all'?roomTypes:roomTypes.filter(r=>r.cat===filter);
@@ -85,14 +58,23 @@ function openTRPTextRoom(name){
   const wrap=document.querySelector('.modal-image-wrap');
   const img=document.getElementById('modalImage');
   const visualKey=trpVisualKeyForRoom(r);
-  if(img){img.style.display='none';img.removeAttribute('src');img.alt='';}
   if(wrap){
+    wrap.querySelectorAll('.trp-room-canvas').forEach(el=>el.remove());
     wrap.style.background='#0b0b0d';
     wrap.style.height='auto';
+    wrap.style.minHeight='0';
     wrap.style.aspectRatio='auto';
-    drawTRPRoomVisual(wrap,visualKey);
     let note=wrap.querySelector('.modal-visual-note');
     if(!note){note=document.createElement('span');note.className='modal-visual-note';note.textContent='TRP visual inspiration';wrap.appendChild(note);}
+  }
+  if(img){
+    img.style.display='block';
+    img.style.position='static';
+    img.style.width='100%';
+    img.style.height='auto';
+    img.style.objectFit='contain';
+    img.alt=`TRP visual inspiration for ${r.name}`;
+    img.src=TRP_ROOM_VISUALS[visualKey]||TRP_ROOM_VISUALS.luxury;
   }
   document.getElementById('modalCategory').textContent=r.cat.replace('work','work & create');
   document.getElementById('modalEmoji').textContent=`${r.emoji} ROOM CONCEPT`;
