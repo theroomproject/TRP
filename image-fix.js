@@ -1,4 +1,4 @@
-const TRP_FALLBACK_IMAGE = 'assets/images/room-gallery.jpg';
+const TRP_FALLBACK_IMAGE = 'assets/images/trp-room-concepts.jpg';
 const TRP_POSITIONS = ['0% 0%','25% 0%','50% 0%','75% 0%','100% 0%','0% 100%','25% 100%','50% 100%','75% 100%','100% 100%'];
 
 // Reduce only the STARTING price of each approximate room range by 20%.
@@ -13,8 +13,6 @@ convertPriceRange = function(price){
   return `${formatMoney(convertMYR(lower))}–${formatMoney(convertMYR(nums[1]))}${plus?'+':''}`;
 };
 
-// Keep the main catalogue intentionally text-first. Concept visuals only appear
-// after a visitor chooses a room and opens its details.
 const trpCatalogueStyle = document.createElement('style');
 trpCatalogueStyle.textContent = `
   .room-card{min-height:285px;display:flex;overflow:hidden;}
@@ -26,8 +24,8 @@ trpCatalogueStyle.textContent = `
   .room-feature-preview{display:flex;flex-wrap:wrap;gap:7px;margin:0 0 22px;padding:0;list-style:none;}
   .room-feature-preview li{font-size:.72rem;line-height:1.2;padding:7px 9px;border:1px solid rgba(255,255,255,.12);border-radius:999px;color:rgba(255,255,255,.72);background:rgba(255,255,255,.035);}
   .room-concept-label{font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;color:#ff8a24;font-weight:800;}
-  .modal-image-wrap{display:block;min-height:260px;background:#111;}
-  .modal-image-wrap img{display:block;width:100%;height:100%;min-height:260px;object-fit:cover;}
+  .modal-image-wrap{display:block!important;min-height:260px;background:#111;overflow:hidden;}
+  .modal-image-wrap img{display:block!important;width:100%;height:100%;min-height:260px;object-fit:cover;}
   @media(max-width:650px){.room-card{min-height:0}.room-card-content{padding:22px!important;}.modal-image-wrap,.modal-image-wrap img{min-height:210px;}}
 `;
 document.head.appendChild(trpCatalogueStyle);
@@ -53,10 +51,13 @@ function openTRPTextRoom(name){
   const index=roomTypes.findIndex(x=>x.name===name);
   const modalImage=document.getElementById('modalImage');
   const imageWrap=modalImage?.closest('.modal-image-wrap');
-  if(imageWrap) imageWrap.style.display='block';
+  if(imageWrap){
+    imageWrap.style.display='block';
+    imageWrap.style.background='#111';
+  }
   if(modalImage){
     modalImage.style.display='block';
-    modalImage.src=TRP_FALLBACK_IMAGE + '?v=2';
+    modalImage.src=TRP_FALLBACK_IMAGE + '?v=3';
     modalImage.alt=`Concept inspiration for ${r.name}`;
     modalImage.style.objectFit='cover';
     modalImage.style.objectPosition=TRP_POSITIONS[index % TRP_POSITIONS.length];
@@ -73,14 +74,12 @@ function openTRPTextRoom(name){
   document.body.classList.add('modal-open');
 }
 
-// Replace the original image-heavy catalogue renderer and modal opener.
 if(typeof renderRooms === 'function') renderRooms = renderTRPTextRooms;
 if(typeof openRoom === 'function') openRoom = openTRPTextRoom;
 
 const activeFilter=document.querySelector('.filter-btn.active')?.dataset.filter || 'all';
 renderTRPTextRooms(activeFilter);
 
-// Refresh the room selector so its displayed estimates use the revised lower prices.
 if(formRoom){
   const selected=formRoom.value;
   formRoom.innerHTML='<option value="">Choose a room type</option>';
@@ -88,14 +87,11 @@ if(formRoom){
   if([...formRoom.options].some(o=>o.value===selected)) formRoom.value=selected;
 }
 
-// Update the catalogue introduction to match the cleaner text-first experience.
 const roomsIntro=document.querySelector('#rooms .section-head p');
 if(roomsIntro){
   roomsIntro.textContent='Explore the room concepts below for ideas, estimated pricing and possible features. Click any concept to view visual inspiration and the full details. Final designs are personalised to the actual room, customer preferences, selected materials and available budget.';
 }
 
-// If the visual cannot load, keep the modal fully usable and show a clean visual panel
-// rather than hiding the image area permanently.
 const modalImage=document.getElementById('modalImage');
 if(modalImage){
   modalImage.addEventListener('error',()=>{
