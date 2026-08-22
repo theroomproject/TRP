@@ -1,18 +1,18 @@
-// TRP room catalogue: text-only cards, standalone original TRP visuals in room modal.
+// TRP room catalogue: text-only cards, standalone original TRP JPEG visuals in room modal.
 
 const TRP_ROOM_VISUALS={
-  gaming:'assets/room-types/gaming.svg?v=20260823f',
-  luxury:'assets/room-types/luxury.svg?v=20260823f',
-  prayer:'assets/room-types/prayer.svg?v=20260823f',
-  zen:'assets/room-types/zen.svg?v=20260823f',
-  cinema:'assets/room-types/cinema.svg?v=20260823f',
-  creator:'assets/room-types/creator.svg?v=20260823f',
-  office:'assets/room-types/office.svg?v=20260823f',
-  kids:'assets/room-types/kids.svg?v=20260823f',
-  jungle:'assets/room-types/jungle.svg?v=20260823f',
-  tropical:'assets/room-types/tropical.svg?v=20260823f',
-  pastel:'assets/room-types/pastel.svg?v=20260823f',
-  sports:'assets/room-types/sports.svg?v=20260823f'
+  gaming:'assets/room-types/gaming.jpg?v=20260823g',
+  luxury:'assets/room-types/luxury.jpg?v=20260823g',
+  prayer:'assets/room-types/prayer.jpg?v=20260823g',
+  zen:'assets/room-types/zen.jpg?v=20260823g',
+  cinema:'assets/room-types/cinema.jpg?v=20260823g',
+  creator:'assets/room-types/creator.jpg?v=20260823g',
+  office:'assets/room-types/office.jpg?v=20260823g',
+  kids:'assets/room-types/kids.jpg?v=20260823g',
+  jungle:'assets/room-types/jungle.jpg?v=20260823g',
+  tropical:'assets/room-types/tropical.jpg?v=20260823g',
+  pastel:'assets/room-types/pastel.jpg?v=20260823g',
+  sports:'assets/room-types/sports.jpg?v=20260823g'
 };
 
 function trpVisualKeyForRoom(r){
