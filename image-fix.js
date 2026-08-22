@@ -1,20 +1,11 @@
 // TRP text-first room catalogue with original TRP visual concepts in the popup.
 // The main room cards stay text-only; the original room visual appears only when opened.
 
-const TRP_MASTER_VISUAL='assets/images/trp-originals-master.jpg?v=20260823';
+const TRP_MASTER_VISUAL='assets/images/trp-originals-master.jpg?v=20260823b';
 const TRP_VISUAL_POSITIONS={
-  gaming:'0% 0%',
-  luxury:'33.333% 0%',
-  prayer:'66.667% 0%',
-  zen:'100% 0%',
-  cinema:'0% 50%',
-  creator:'33.333% 50%',
-  office:'66.667% 50%',
-  kids:'100% 50%',
-  jungle:'0% 100%',
-  tropical:'33.333% 100%',
-  pastel:'66.667% 100%',
-  sports:'100% 100%'
+  gaming:'0% 0%', luxury:'33.333% 0%', prayer:'66.667% 0%', zen:'100% 0%',
+  cinema:'0% 50%', creator:'33.333% 50%', office:'66.667% 50%', kids:'100% 50%',
+  jungle:'0% 100%', tropical:'33.333% 100%', pastel:'66.667% 100%', sports:'100% 100%'
 };
 
 function trpVisualKeyForRoom(r){
@@ -33,7 +24,6 @@ function trpVisualKeyForRoom(r){
   return 'luxury';
 }
 
-// Reduce only the STARTING estimate by 20%; preserve the original maximum.
 convertPriceRange=function(price){
   const nums=[...price.matchAll(/[\d,]+/g)].map(m=>Number(m[0].replaceAll(',','')));
   if(!nums.length) return price;
@@ -46,8 +36,12 @@ convertPriceRange=function(price){
 const trpStyle=document.createElement('style');
 trpStyle.textContent=`
 .room-card{min-height:285px;display:flex;overflow:hidden}.room-card>img{display:none!important}.room-card-content{display:flex!important;flex-direction:column;flex:1;padding:28px!important}.room-card-content h3{margin-top:14px}.room-card-content p{margin-bottom:18px}.room-card-content button{margin-top:auto}.room-feature-preview{display:flex;flex-wrap:wrap;gap:7px;margin:0 0 22px;padding:0;list-style:none}.room-feature-preview li{font-size:.72rem;line-height:1.2;padding:7px 9px;border:1px solid rgba(255,255,255,.12);border-radius:999px;color:rgba(255,255,255,.72);background:rgba(255,255,255,.035)}.room-concept-label{font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;color:#ff8a24;font-weight:800}
-.modal-panel{grid-template-columns:minmax(430px,1.05fr) .95fr!important;align-items:center!important}.modal-image-wrap{display:block!important;position:relative!important;width:100%!important;aspect-ratio:4/3!important;min-height:0!important;background-color:#111!important;background-image:url('${TRP_MASTER_VISUAL}')!important;background-size:400% 300%!important;background-repeat:no-repeat!important;overflow:hidden!important;align-self:center!important}.modal-image-wrap img{display:none!important}.modal-gradient{display:block!important;background:linear-gradient(0deg,rgba(0,0,0,.58),transparent 44%)!important}.modal-visual-note{position:absolute;left:18px;top:18px;z-index:2;background:rgba(0,0,0,.72);border:1px solid rgba(255,255,255,.16);border-radius:8px;padding:7px 9px;color:#fff;font-size:.62rem;letter-spacing:.11em;text-transform:uppercase;font-weight:800}
-@media(max-width:980px){.modal-panel{grid-template-columns:1fr!important;max-width:760px!important}.modal-image-wrap{aspect-ratio:4/3!important}}@media(max-width:650px){.room-card{min-height:0}.room-card-content{padding:22px!important}.modal-image-wrap{aspect-ratio:4/3!important}}
+
+/* Keep the visual as a true image block instead of stretching it to the text-column height. */
+.modal-panel{grid-template-columns:minmax(430px,1.05fr) .95fr!important;align-items:start!important}
+.modal-image-wrap{display:block!important;position:relative!important;width:100%!important;height:auto!important;min-height:0!important;max-height:none!important;aspect-ratio:4/3!important;align-self:start!important;background-color:#111!important;background-image:url('${TRP_MASTER_VISUAL}')!important;background-size:400% 300%!important;background-repeat:no-repeat!important;overflow:hidden!important}
+.modal-image-wrap img{display:none!important}.modal-gradient{display:block!important;background:linear-gradient(0deg,rgba(0,0,0,.58),transparent 44%)!important}.modal-category{bottom:18px!important}.modal-visual-note{position:absolute;left:18px;top:18px;z-index:2;background:rgba(0,0,0,.72);border:1px solid rgba(255,255,255,.16);border-radius:8px;padding:7px 9px;color:#fff;font-size:.62rem;letter-spacing:.11em;text-transform:uppercase;font-weight:800}
+@media(max-width:980px){.modal-panel{grid-template-columns:1fr!important;max-width:760px!important}.modal-image-wrap{width:100%!important;height:auto!important;aspect-ratio:4/3!important}}@media(max-width:650px){.room-card{min-height:0}.room-card-content{padding:22px!important}.modal-image-wrap{width:100%!important;height:auto!important;aspect-ratio:4/3!important}}
 `;
 document.head.appendChild(trpStyle);
 
@@ -63,6 +57,9 @@ function openTRPTextRoom(name){
   const visualKey=trpVisualKeyForRoom(r);
   if(wrap){
     wrap.style.display='block';
+    wrap.style.width='100%';
+    wrap.style.height='auto';
+    wrap.style.aspectRatio='4 / 3';
     wrap.style.backgroundImage=`url('${TRP_MASTER_VISUAL}')`;
     wrap.style.backgroundSize='400% 300%';
     wrap.style.backgroundPosition=TRP_VISUAL_POSITIONS[visualKey]||TRP_VISUAL_POSITIONS.luxury;
@@ -85,7 +82,6 @@ renderTRPTextRooms(document.querySelector('.filter-btn.active')?.dataset.filter|
 if(formRoom){const selected=formRoom.value;formRoom.innerHTML='<option value="">Choose a room type</option>';roomTypes.forEach(r=>{const o=document.createElement('option');o.value=r.name;o.textContent=`${r.emoji} ${r.name} — ${convertPriceRange(r.price)}`;formRoom.appendChild(o)});if([...formRoom.options].some(o=>o.value===selected))formRoom.value=selected;}
 const roomsIntro=document.querySelector('#rooms .section-head p');if(roomsIntro)roomsIntro.textContent='Explore the room concepts below for ideas, estimated pricing and possible features. Click any concept to view original TRP visual inspiration and the full details. Final designs are personalised to the actual room, customer preferences, selected materials and available budget.';
 
-// Expand the customer FAQ from 6 to 15 questions.
 const faqList=document.querySelector('.faq-list');
 if(faqList && faqList.querySelectorAll('details').length<15){
   const extraFaqs=[
