@@ -77,3 +77,20 @@ renderRooms=renderTRPTextRooms;openRoom=openTRPTextRoom;
 renderTRPTextRooms(document.querySelector('.filter-btn.active')?.dataset.filter||'all');
 if(formRoom){const selected=formRoom.value;formRoom.innerHTML='<option value="">Choose a room type</option>';roomTypes.forEach(r=>{const o=document.createElement('option');o.value=r.name;o.textContent=`${r.emoji} ${r.name} — ${convertPriceRange(r.price)}`;formRoom.appendChild(o)});if([...formRoom.options].some(o=>o.value===selected))formRoom.value=selected;}
 const roomsIntro=document.querySelector('#rooms .section-head p');if(roomsIntro)roomsIntro.textContent='Explore the room concepts below for ideas, estimated pricing and possible features. Click any concept to view a sharp visual inspiration image and the full details. Final designs are personalised to the actual room, customer preferences, selected materials and available budget.';
+
+// Expand the customer FAQ from 6 to 15 questions.
+const faqList=document.querySelector('.faq-list');
+if(faqList && faqList.querySelectorAll('details').length<15){
+  const extraFaqs=[
+    ['How long does a room transformation usually take?','The timeline depends on the size of the room, the amount of work involved, custom items, material availability and specialist schedules. TRP will provide a clearer project timeline once the room and final scope have been assessed.'],
+    ['Do I have to choose one of the room concepts shown on the website?','No. The concepts are there to help you imagine possibilities. You can bring your own reference photos, describe a completely different idea, or ask TRP to develop a direction based on your personality, needs and budget.'],
+    ['Can I keep some of my existing furniture?','Yes. If existing furniture, lighting, décor or equipment still works with the new concept, TRP can plan around it. Reusing suitable items can also help control the overall project budget.'],
+    ['Can I change the design after the project has started?','Changes may be possible, but they can affect cost, materials and completion time. TRP will discuss the impact of any requested changes before additional work is approved or arranged.'],
+    ['Does TRP handle furniture, lighting and décor too?','Depending on the agreed scope, TRP can coordinate furniture, lighting, décor, curtains, technology, custom carpentry and other items needed to complete the room rather than leaving the customer to organise each supplier separately.'],
+    ['What happens if the final quotations are above my budget?','TRP can review the scope with you and look at practical ways to reduce or prioritise spending. This may include changing materials, postponing lower-priority features or simplifying certain parts of the transformation.'],
+    ['Can TRP transform a rented room or rental property?','Potentially, yes, provided the customer has permission for any changes that affect the property. For rented spaces, TRP can also focus on more reversible upgrades when appropriate.'],
+    ['Will the finished room look exactly like the inspiration image?','Not necessarily. Inspiration images communicate a style and feeling. The final result depends on your actual room dimensions, layout, building conditions, chosen materials, product availability and approved budget.'],
+    ['What happens after the room is completed?','TRP and the assigned Room Raider will coordinate the final checks and handover. Any warranty or after-sales coverage relating to specific products or specialist work will depend on the relevant supplier, contractor or agreed project terms.']
+  ];
+  extraFaqs.forEach(([q,a])=>faqList.insertAdjacentHTML('beforeend',`<details class="reveal visible"><summary>${q}</summary><p>${a}</p></details>`));
+}
