@@ -72,3 +72,5 @@ jobs:
             git commit -m 'Generate standalone TRP room JPEGs'
             git push
           fi
+
+# trigger refresh 2026-08-23
