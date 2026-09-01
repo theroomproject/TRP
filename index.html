@@ -11,7 +11,28 @@
 <body>
   <a class="skip-link" href="#main">Skip to content</a>
 
-  <header class="site-header" id="top">
+  <div class="top-utility" id="top">
+    <div class="container top-utility-inner">
+      <div class="top-contact-links">
+        <span>Talk to TRP:</span>
+        <a href="https://wa.me/60102380016?text=Hi%20TRP%2C%20I%27d%20like%20to%20make%20an%20enquiry." target="_blank" rel="noopener">WhatsApp +60 10-238 0016</a>
+        <a href="tel:+60102380016">Call Us</a>
+      </div>
+      <label class="top-currency">
+        <span>Currency</span>
+        <select id="topCurrencySelect" aria-label="Choose display currency at top of page">
+          <option value="USD" selected>USD $</option>
+          <option value="MYR">MYR RM</option>
+          <option value="SGD">SGD S$</option>
+          <option value="GBP">GBP £</option>
+          <option value="EUR">EUR €</option>
+          <option value="AUD">AUD A$</option>
+        </select>
+      </label>
+    </div>
+  </div>
+
+  <header class="site-header">
     <div class="nav-wrap container">
       <a class="brand" href="#top" aria-label="TRP home">
         <img src="assets/images/trp_modern_room_project_logo.webp" alt="TRP — The Room Project" />
@@ -24,6 +45,7 @@
         <a href="#raiders">Room Raiders</a>
         <a href="#packages">Packages</a>
         <a href="#faq">FAQ</a>
+        <a href="#contact">Contact Us</a>
         <a class="nav-cta" href="https://wa.me/60102380016?text=Hi%20TRP%2C%20I%27d%20like%20a%20FREE%20quotation%20for%20a%20room%20transformation." target="_blank" rel="noopener">FREE Quote via WhatsApp</a>
       </nav>
     </div>
@@ -208,6 +230,23 @@
       </div>
     </section>
 
+    <section class="contact-section section-pad" id="contact">
+      <div class="container contact-panel reveal">
+        <div class="contact-copy">
+          <span class="section-kicker">Talk to The Room Project</span>
+          <h2>Have a room in mind? Contact us directly.</h2>
+          <p>For general enquiries, room-transformation questions or a FREE quotation, WhatsApp TRP and tell us what you would like to transform. You can also call us directly.</p>
+          <div class="contact-detail"><strong>TRP Contact:</strong> +60 10-238 0016</div>
+        </div>
+        <div class="contact-actions">
+          <a class="btn btn-primary" href="https://wa.me/60102380016?text=Hi%20TRP%2C%20I%27d%20like%20to%20make%20an%20enquiry%20about%20a%20room%20transformation." target="_blank" rel="noopener">WhatsApp Us</a>
+          <a class="btn btn-ghost" href="https://wa.me/60102380016?text=Hi%20TRP%2C%20I%27d%20like%20a%20FREE%20quotation%20for%20a%20room%20transformation." target="_blank" rel="noopener">Get a FREE Quote</a>
+          <a class="btn btn-ghost" href="tel:+60102380016">Call +60 10-238 0016</a>
+          <a class="text-contact-link" href="#start">Or create a detailed project brief →</a>
+        </div>
+      </div>
+    </section>
+
     <section class="start-section section-pad" id="start">
       <div class="container start-grid">
         <div class="start-copy reveal">
@@ -278,7 +317,7 @@
     <div class="container footer-grid">
       <div class="footer-brand"><img src="assets/images/trp_modern_room_project_logo.webp" alt="TRP logo" /><p><strong>TRP — The Room Project</strong><br>Your Room. Your Vision. Our Project.</p></div>
       <div><strong>Explore</strong><a href="#rooms">Room Types</a><a href="#process">How It Works</a><a href="#raiders">Room Raiders</a><a href="#start">Project Brief</a></div>
-      <div><strong>Launch status</strong><p>Room-transformation enquiries and FREE quotation requests: WhatsApp TRP at +60 10-238 0016.</p></div>
+      <div><strong>Contact TRP</strong><p>Room-transformation enquiries and FREE quotation requests:</p><a href="https://wa.me/60102380016?text=Hi%20TRP%2C%20I%27d%20like%20to%20make%20an%20enquiry." target="_blank" rel="noopener">WhatsApp +60 10-238 0016</a><a href="tel:+60102380016">Call +60 10-238 0016</a><a href="#contact">Contact Us</a></div>
     </div>
     <div class="container footer-bottom"><span>© <span id="year"></span> TRP — The Room Project.</span><span>Concept imagery is illustrative. Final outcomes vary by room, scope and budget.</span></div>
   </footer>
@@ -288,11 +327,11 @@
     <div class="modal-panel">
       <button class="modal-close" data-close-modal aria-label="Close">×</button>
       <div class="modal-image-wrap"><img id="modalImage" src="" alt="" /><div class="modal-gradient"></div><span class="modal-category" id="modalCategory"></span></div>
-      <div class="modal-content"><span class="section-kicker" id="modalEmoji"></span><h2 id="modalTitle"></h2><div class="modal-price" id="modalPrice"></div><p id="modalDescription"></p><h3>Could include</h3><ul id="modalFeatures"></ul><a class="btn btn-primary full" href="#start" id="modalStart">Build a project brief</a><small>Price shown is an estimate only. See the full pricing disclaimer on the Room Types section.</small></div>
+      <div class="modal-content"><span class="section-kicker" id="modalEmoji"></span><h2 id="modalTitle"></h2><div class="modal-price" id="modalPrice"></div><p id="modalDescription"></p><h3>Could include</h3><ul id="modalFeatures"></ul><a class="btn btn-primary full" href="#start" id="modalStart">Build a project brief</a><a class="btn btn-ghost full modal-whatsapp" id="modalWhatsApp" href="https://wa.me/60102380016" target="_blank" rel="noopener">WhatsApp Us About This Room</a><small>Price shown is an estimate only. See the full pricing disclaimer on the Room Types section.</small></div>
     </div>
   </div>
 
   <script src="script.js"></script>
-  <script src="image-fix.js?v=20260902b"></script>
+  <script src="image-fix.js?v=20260902c"></script>
 </body>
 </html>
