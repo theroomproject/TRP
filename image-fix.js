@@ -1,25 +1,10 @@
-// TRP diagnostic: use one known-working local image to verify modal image loading.
+// TRP production fixes: pricing rule, WhatsApp enquiry flow, reliable image display and FAQs.
+const TRP_WHATSAPP_NUMBER='60102380016';
+const TRP_WHATSAPP_BASE='https://wa.me/'+TRP_WHATSAPP_NUMBER;
 
-const TRP_DIAGNOSTIC_VISUAL='assets/images/moody_luxury_bedroom_with_orange_accents.webp?v=20260823-test';
-
-function trpVisualKeyForRoom(r){
-  const n=r.name.toLowerCase();
-  if(n.includes('cinema')) return 'cinema';
-  if(n.includes('prayer')||n.includes('spiritual')) return 'prayer';
-  if(n.includes('zen')||n.includes('meditation')) return 'zen';
-  if(n.includes('podcast')||n.includes('streaming')||n.includes('music')||n.includes('creative studio')||n.includes('content creator')) return 'creator';
-  if(n.includes('office')||n.includes('study')||n.includes('productivity')) return 'office';
-  if(n.includes('kids')||n.includes('fantasy')) return 'kids';
-  if(n.includes('nature')||n.includes('jungle')||n.includes('chill lounge')) return 'jungle';
-  if(n.includes('resort')||n.includes('bali')||n.includes('airbnb')||n.includes('walk-in wardrobe')) return 'tropical';
-  if(n.includes('pastel')||n.includes('princess')||n.includes('glam')||n.includes('beauty')||n.includes('makeup')||n.includes('nursery')) return 'pastel';
-  if(n.includes('sports')||n.includes('car enthusiast')||n.includes('sneaker')||n.includes('fashion')) return 'sports';
-  if(n.includes('gaming')||n.includes('anime')||n.includes('party')||n.includes('galaxy')||n.includes('space')) return 'gaming';
-  return 'luxury';
-}
-
+// Maintain the final/max figure and reduce only the starting/minimum estimate by 20%.
 convertPriceRange=function(price){
-  const nums=[...price.matchAll(/[\d,]+/g)].map(m=>Number(m[0].replaceAll(',','')));
+  const nums=[...price.matchAll(/[\\d,]+/g)].map(m=>Number(m[0].replaceAll(',','')));
   if(!nums.length) return price;
   const plus=price.trim().endsWith('+');
   const lower=Math.round(nums[0]*0.8);
@@ -27,66 +12,102 @@ convertPriceRange=function(price){
   return `${formatMoney(convertMYR(lower))}–${formatMoney(convertMYR(nums[1]))}${plus?'+':''}`;
 };
 
-const trpStyle=document.createElement('style');
-trpStyle.textContent=`
-.room-card{min-height:285px;display:flex;overflow:hidden}.room-card>img{display:none!important}.room-card-content{display:flex!important;flex-direction:column;flex:1;padding:28px!important}.room-card-content h3{margin-top:14px}.room-card-content p{margin-bottom:18px}.room-card-content button{margin-top:auto}.room-feature-preview{display:flex;flex-wrap:wrap;gap:7px;margin:0 0 22px;padding:0;list-style:none}.room-feature-preview li{font-size:.72rem;line-height:1.2;padding:7px 9px;border:1px solid rgba(255,255,255,.12);border-radius:999px;color:rgba(255,255,255,.72);background:rgba(255,255,255,.035)}.room-concept-label{font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;color:#ff8a24;font-weight:800}
-.modal-panel{grid-template-columns:minmax(420px,600px) minmax(0,1fr)!important;align-items:start!important;max-width:1240px!important}.modal-image-wrap{display:block!important;position:relative!important;width:100%!important;max-width:600px!important;aspect-ratio:4/3!important;height:auto!important;min-height:0!important;align-self:start!important;background:#0b0b0d!important;overflow:hidden!important}.modal-image-wrap>img{display:block!important;position:absolute!important;inset:0!important;width:100%!important;height:100%!important;max-width:none!important;max-height:none!important;object-fit:cover!important;object-position:center!important;filter:none!important;transform:none!important}.modal-gradient{position:absolute!important;inset:0!important;display:block!important;background:linear-gradient(0deg,rgba(0,0,0,.48),transparent 42%)!important;pointer-events:none!important}.modal-category{position:absolute!important;left:18px!important;bottom:18px!important;z-index:3!important}.modal-visual-note{position:absolute;left:18px;top:18px;z-index:3;background:rgba(0,0,0,.72);border:1px solid rgba(255,255,255,.16);border-radius:8px;padding:7px 9px;color:#fff;font-size:.62rem;letter-spacing:.11em;text-transform:uppercase;font-weight:800}
-@media(max-width:980px){.modal-panel{grid-template-columns:1fr!important;max-width:760px!important}.modal-image-wrap{max-width:600px!important}}@media(max-width:650px){.room-card{min-height:0}.room-card-content{padding:22px!important}.modal-image-wrap{max-width:100%!important}}
+// Re-render after the pricing override so cards and the room selector use the intended figures.
+if(typeof renderRooms==='function'){
+  const active=document.querySelector('.filter-btn.active')?.dataset.filter||'all';
+  renderRooms(active);
+}
+if(formRoom){
+  const selected=formRoom.value;
+  formRoom.innerHTML='<option value="">Choose a room type</option>';
+  roomTypes.forEach(r=>{
+    const o=document.createElement('option');
+    o.value=r.name;
+    o.textContent=`${r.emoji} ${r.name} — ${convertPriceRange(r.price)}`;
+    formRoom.appendChild(o);
+  });
+  if([...formRoom.options].some(o=>o.value===selected)) formRoom.value=selected;
+}
+
+// Images: remove any old diagnostic styles, ensure real images are visible,
+// and gracefully fall back to the TRP logo rather than leaving a blank panel.
+const imageSafetyStyle=document.createElement('style');
+imageSafetyStyle.textContent=`
+.room-card>img{display:block!important}
+.modal-image-wrap{position:relative!important;min-height:420px!important;background:#0b0b0d!important;overflow:hidden!important}
+.modal-image-wrap>img{display:block!important;position:absolute!important;inset:0!important;width:100%!important;height:100%!important;max-width:none!important;max-height:none!important;object-fit:cover!important;object-position:center!important;opacity:1!important;visibility:visible!important}
+.brief-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}.brief-actions .btn{flex:1}
+.trp-whatsapp-float{position:fixed;right:18px;bottom:18px;z-index:80;background:#25D366;color:#07140b;padding:13px 17px;border-radius:999px;font-weight:900;box-shadow:0 12px 35px rgba(0,0,0,.35);display:flex;align-items:center;gap:8px}
+.trp-whatsapp-float:hover{transform:translateY(-2px)}
+@media(max-width:650px){.modal-image-wrap{min-height:260px!important}.trp-whatsapp-float{right:12px;bottom:12px;padding:11px 14px;font-size:.86rem}}
 `;
-document.head.appendChild(trpStyle);
+document.head.appendChild(imageSafetyStyle);
 
-function renderTRPTextRooms(filter='all'){
-  const list=filter==='all'?roomTypes:roomTypes.filter(r=>r.cat===filter);
-  grid.innerHTML=list.map(r=>`<article class="room-card tone-${r.tone}" data-name="${r.name.replaceAll('"','&quot;')}"><div class="room-card-content"><div class="room-card-top"><span class="room-emoji">${r.emoji}</span><span class="room-price">${convertPriceRange(r.price)}</span></div><span class="room-concept-label">Room concept</span><h3>${r.name}</h3><p>${r.desc}</p><ul class="room-feature-preview">${r.features.slice(0,3).map(f=>`<li>${f}</li>`).join('')}</ul><button type="button" data-room="${encodeURIComponent(r.name)}">View concept image & details <span>→</span></button></div></article>`).join('');
+function installImageFallbacks(root=document){
+  root.querySelectorAll('img').forEach(img=>{
+    if(img.dataset.trpFallbackInstalled) return;
+    img.dataset.trpFallbackInstalled='1';
+    img.addEventListener('error',()=>{
+      if(img.dataset.trpFallbackUsed) return;
+      img.dataset.trpFallbackUsed='1';
+      img.src='assets/images/trp_modern_room_project_logo.webp';
+      img.alt='TRP — The Room Project';
+      img.style.objectFit='contain';
+      img.style.padding='24px';
+      img.style.background='#0b0b0d';
+    });
+  });
+}
+installImageFallbacks();
+const imageObserver=new MutationObserver(()=>installImageFallbacks());
+imageObserver.observe(document.body,{childList:true,subtree:true});
+
+// Keep modal images visible after the original openRoom() updates the source.
+if(grid){
+  grid.addEventListener('click',()=>setTimeout(()=>installImageFallbacks(document.getElementById('roomModal')||document),0));
 }
 
-function openTRPTextRoom(name){
-  const r=roomTypes.find(x=>x.name===name);if(!r)return;
-  const wrap=document.querySelector('.modal-image-wrap');
-  const img=document.getElementById('modalImage');
-  if(wrap){
-    wrap.style.background='#0b0b0d';
-    wrap.style.aspectRatio='4 / 3';
-    let note=wrap.querySelector('.modal-visual-note');
-    if(!note){note=document.createElement('span');note.className='modal-visual-note';note.textContent='TRP visual inspiration';wrap.appendChild(note);}
-  }
-  if(img){
-    img.style.display='block';
-    img.style.position='absolute';
-    img.style.inset='0';
-    img.style.width='100%';
-    img.style.height='100%';
-    img.style.objectFit='cover';
-    img.alt=`TRP visual inspiration for ${r.name}`;
-    img.onerror=()=>{img.onerror=null; console.error('TRP diagnostic image failed:',TRP_DIAGNOSTIC_VISUAL);};
-    img.src=TRP_DIAGNOSTIC_VISUAL;
-  }
-  document.getElementById('modalCategory').textContent=r.cat.replace('work','work & create');
-  document.getElementById('modalEmoji').textContent=`${r.emoji} ROOM CONCEPT`;
-  document.getElementById('modalTitle').textContent=r.name;
-  document.getElementById('modalPrice').textContent=`Estimated ${convertPriceRange(r.price)} ${activeCurrency}`;
-  document.getElementById('modalDescription').textContent=r.desc;
-  document.getElementById('modalFeatures').innerHTML=r.features.map(f=>`<li>${f}</li>`).join('');
-  formRoom.value=r.name;modal.classList.add('open');modal.setAttribute('aria-hidden','false');document.body.classList.add('modal-open');
+// WhatsApp project brief button.
+const whatsappBrief=document.getElementById('whatsappBrief');
+if(whatsappBrief){
+  whatsappBrief.addEventListener('click',e=>{
+    const text=(briefOutput?.textContent||'').trim();
+    if(!text) return;
+    e.currentTarget.href=TRP_WHATSAPP_BASE+'?text='+encodeURIComponent(
+      'Hi TRP, I would like a FREE quotation. Here is my project brief:\\n\\n'+text
+    );
+  });
 }
 
-renderRooms=renderTRPTextRooms;openRoom=openTRPTextRoom;
-renderTRPTextRooms(document.querySelector('.filter-btn.active')?.dataset.filter||'all');
-if(formRoom){const selected=formRoom.value;formRoom.innerHTML='<option value="">Choose a room type</option>';roomTypes.forEach(r=>{const o=document.createElement('option');o.value=r.name;o.textContent=`${r.emoji} ${r.name} — ${convertPriceRange(r.price)}`;formRoom.appendChild(o)});if([...formRoom.options].some(o=>o.value===selected))formRoom.value=selected;}
-const roomsIntro=document.querySelector('#rooms .section-head p');if(roomsIntro)roomsIntro.textContent='Explore the room concepts below for ideas, estimated pricing and possible features. Click any concept to view original TRP visual inspiration and the full details. Final designs are personalised to the actual room, customer preferences, selected materials and available budget.';
+// Floating WhatsApp enquiry button.
+if(!document.querySelector('.trp-whatsapp-float')){
+  const a=document.createElement('a');
+  a.className='trp-whatsapp-float';
+  a.href=TRP_WHATSAPP_BASE+'?text='+encodeURIComponent("Hi TRP, I'd like to enquire about a room transformation and get a FREE quotation.");
+  a.target='_blank';
+  a.rel='noopener';
+  a.setAttribute('aria-label','WhatsApp TRP for a free quotation');
+  a.textContent='WhatsApp • FREE Quote';
+  document.body.appendChild(a);
+}
 
+// Keep the expanded FAQ set.
 const faqList=document.querySelector('.faq-list');
 if(faqList && faqList.querySelectorAll('details').length<15){
   const extraFaqs=[
-    ['How long does a room transformation usually take?','The timeline depends on the size of the room, the amount of work involved, custom items, material availability and specialist schedules. TRP will provide a clearer project timeline once the room and final scope have been assessed.'],
-    ['Do I have to choose one of the room concepts shown on the website?','No. The concepts are there to help you imagine possibilities. You can bring your own reference photos, describe a completely different idea, or ask TRP to develop a direction based on your personality, needs and budget.'],
-    ['Can I keep some of my existing furniture?','Yes. If existing furniture, lighting, décor or equipment still works with the new concept, TRP can plan around it. Reusing suitable items can also help control the overall project budget.'],
-    ['Can I change the design after the project has started?','Changes may be possible, but they can affect cost, materials and completion time. TRP will discuss the impact of any requested changes before additional work is approved or arranged.'],
-    ['Does TRP handle furniture, lighting and décor too?','Depending on the agreed scope, TRP can coordinate furniture, lighting, décor, curtains, technology, custom carpentry and other items needed to complete the room rather than leaving the customer to organise each supplier separately.'],
-    ['What happens if the final quotations are above my budget?','TRP can review the scope with you and look at practical ways to reduce or prioritise spending. This may include changing materials, postponing lower-priority features or simplifying certain parts of the transformation.'],
-    ['Can TRP transform a rented room or rental property?','Potentially, yes, provided the customer has permission for any changes that affect the property. For rented spaces, TRP can also focus on more reversible upgrades when appropriate.'],
-    ['Will the finished room look exactly like the inspiration image?','Not necessarily. Inspiration images communicate a style and feeling. The final result depends on your actual room dimensions, layout, building conditions, chosen materials, product availability and approved budget.'],
-    ['What happens after the room is completed?','TRP and the assigned Room Raider will coordinate the final checks and handover. Any warranty or after-sales coverage relating to specific products or specialist work will depend on the relevant supplier, contractor or agreed project terms.']
+    ['How long does a room transformation usually take?','The timeline depends on room size, scope, custom items, material availability and specialist schedules. TRP will provide a clearer timeline once the room and final scope have been assessed.'],
+    ['Do I have to choose one of the room concepts shown on the website?','No. The concepts are starting points. You can share your own references or ask TRP to develop a direction around your needs and budget.'],
+    ['Can I keep some of my existing furniture?','Yes. Suitable existing furniture, lighting, décor or equipment can be incorporated into the new concept where practical.'],
+    ['Can I change the design after the project has started?','Changes may be possible, but they can affect cost, materials and completion time. Any impact will be discussed before additional work is approved.'],
+    ['Does TRP handle furniture, lighting and décor too?','Depending on the agreed scope, TRP can coordinate furniture, lighting, décor, curtains, technology, carpentry and other items required to complete the room.'],
+    ['What happens if final quotations are above my budget?','TRP can review priorities and scope with you and explore practical ways to reduce or phase the spending.'],
+    ['Can TRP transform a rented room or rental property?','Potentially, yes, provided the customer has permission for changes affecting the property.'],
+    ['Will the finished room look exactly like an inspiration image?','Not necessarily. Final results depend on the actual room, dimensions, building conditions, materials, availability and approved budget.'],
+    ['How do I request a FREE quotation?','Create a project brief on this page or WhatsApp TRP directly at +60 10-238 0016.']
   ];
   extraFaqs.forEach(([q,a])=>faqList.insertAdjacentHTML('beforeend',`<details class="reveal visible"><summary>${q}</summary><p>${a}</p></details>`));
 }
+
+// Update intro copy if the older wording is still present.
+const roomsIntro=document.querySelector('#rooms .section-head p');
+if(roomsIntro) roomsIntro.textContent='Explore the room concepts below for inspiration, estimated pricing and possible features. Final designs are personalised to the actual room, customer preferences, selected materials and available budget.';
