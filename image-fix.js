@@ -111,3 +111,52 @@ if(faqList && faqList.querySelectorAll('details').length<15){
 // Update intro copy if the older wording is still present.
 const roomsIntro=document.querySelector('#rooms .section-head p');
 if(roomsIntro) roomsIntro.textContent='Explore the room concepts below for inspiration, estimated pricing and possible features. Final designs are personalised to the actual room, customer preferences, selected materials and available budget.';
+
+
+// Hero/banner currency selector synced with the existing page currency control.
+const heroCurrencySelect=document.getElementById('heroCurrencySelect');
+function trpApplyCurrency(value){
+  if(!currencyConfig[value]) return;
+  activeCurrency=value;
+  if(currencySelect) currencySelect.value=value;
+  if(heroCurrencySelect) heroCurrencySelect.value=value;
+  const currentFilter=document.querySelector('.filter-btn.active')?.dataset.filter||'all';
+  if(typeof renderRooms==='function') renderRooms(currentFilter);
+  if(formRoom){
+    const selected=formRoom.value;
+    formRoom.innerHTML='<option value="">Choose a room type</option>';
+    roomTypes.forEach(r=>{
+      const o=document.createElement('option');
+      o.value=r.name;
+      o.textContent=`${r.emoji} ${r.name} — ${convertPriceRange(r.price)}`;
+      formRoom.appendChild(o);
+    });
+    if([...formRoom.options].some(o=>o.value===selected)) formRoom.value=selected;
+  }
+  if(typeof rebuildBudgetOptions==='function') rebuildBudgetOptions();
+  const openTitle=document.getElementById('modalTitle')?.textContent;
+  if(document.getElementById('roomModal')?.classList.contains('open') && openTitle){
+    const r=roomTypes.find(x=>x.name===openTitle);
+    if(r){
+      const mp=document.getElementById('modalPrice');
+      if(mp) mp.textContent=`Estimated ${convertPriceRange(r.price)} ${activeCurrency}`;
+    }
+  }
+}
+if(heroCurrencySelect){
+  heroCurrencySelect.value=activeCurrency;
+  heroCurrencySelect.addEventListener('change',()=>trpApplyCurrency(heroCurrencySelect.value));
+}
+if(currencySelect){
+  currencySelect.addEventListener('change',()=>{ if(heroCurrencySelect) heroCurrencySelect.value=currencySelect.value; });
+}
+
+const heroCurrencyStyle=document.createElement('style');
+heroCurrencyStyle.textContent=`
+.hero-currency{display:flex;align-items:center;justify-content:space-between;gap:18px;max-width:540px;margin:22px 0 18px;padding:14px 16px;border:1px solid rgba(255,255,255,.16);border-radius:14px;background:rgba(13,13,15,.72);backdrop-filter:blur(12px)}
+.hero-currency>div{display:grid;gap:2px}.hero-currency strong{font-size:.86rem;color:#fff}.hero-currency small{font-size:.72rem;color:#9f9b96}
+.hero-currency select{min-width:120px;border:1px solid #45454d;background:#0d0d10;color:#fff;border-radius:10px;padding:10px 12px;font-weight:800;outline:none}
+.hero-currency select:focus{border-color:var(--orange)}
+@media(max-width:650px){.hero-currency{align-items:flex-start;flex-direction:column}.hero-currency select{width:100%}}
+`;
+document.head.appendChild(heroCurrencyStyle);
