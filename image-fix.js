@@ -115,11 +115,13 @@ if(roomsIntro) roomsIntro.textContent='Explore the room concepts below for inspi
 
 // Hero/banner currency selector synced with the existing page currency control.
 const heroCurrencySelect=document.getElementById('heroCurrencySelect');
+const topCurrencySelect=document.getElementById('topCurrencySelect');
 function trpApplyCurrency(value){
   if(!currencyConfig[value]) return;
   activeCurrency=value;
   if(currencySelect) currencySelect.value=value;
   if(heroCurrencySelect) heroCurrencySelect.value=value;
+  if(topCurrencySelect) topCurrencySelect.value=value;
   const currentFilter=document.querySelector('.filter-btn.active')?.dataset.filter||'all';
   if(typeof renderRooms==='function') renderRooms(currentFilter);
   if(formRoom){
@@ -147,8 +149,12 @@ if(heroCurrencySelect){
   heroCurrencySelect.value=activeCurrency;
   heroCurrencySelect.addEventListener('change',()=>trpApplyCurrency(heroCurrencySelect.value));
 }
+if(topCurrencySelect){
+  topCurrencySelect.value=activeCurrency;
+  topCurrencySelect.addEventListener('change',()=>trpApplyCurrency(topCurrencySelect.value));
+}
 if(currencySelect){
-  currencySelect.addEventListener('change',()=>{ if(heroCurrencySelect) heroCurrencySelect.value=currencySelect.value; });
+  currencySelect.addEventListener('change',()=>{ if(heroCurrencySelect) heroCurrencySelect.value=currencySelect.value; if(topCurrencySelect) topCurrencySelect.value=currencySelect.value; });
 }
 
 const heroCurrencyStyle=document.createElement('style');
@@ -157,6 +163,28 @@ heroCurrencyStyle.textContent=`
 .hero-currency>div{display:grid;gap:2px}.hero-currency strong{font-size:.86rem;color:#fff}.hero-currency small{font-size:.72rem;color:#9f9b96}
 .hero-currency select{min-width:120px;border:1px solid #45454d;background:#0d0d10;color:#fff;border-radius:10px;padding:10px 12px;font-weight:800;outline:none}
 .hero-currency select:focus{border-color:var(--orange)}
-@media(max-width:650px){.hero-currency{align-items:flex-start;flex-direction:column}.hero-currency select{width:100%}}
+.top-utility{background:#050506;border-bottom:1px solid rgba(255,255,255,.08);position:relative;z-index:60}
+.top-utility-inner{min-height:42px;display:flex;align-items:center;justify-content:space-between;gap:18px}
+.top-contact-links{display:flex;align-items:center;gap:14px;font-size:.76rem;color:#aaa7a2}.top-contact-links span{color:#77736f}.top-contact-links a{color:#fff;font-weight:750}.top-contact-links a:hover{color:var(--orange-2)}
+.top-currency{display:flex;align-items:center;gap:8px;font-size:.72rem;color:#aaa7a2}.top-currency select{border:1px solid #38383e;background:#111114;color:#fff;border-radius:8px;padding:6px 9px;font-weight:800;outline:none}.top-currency select:focus{border-color:var(--orange)}
+.contact-section{background:linear-gradient(135deg,#121214,#0a0a0c)}.contact-panel{display:grid;grid-template-columns:1.15fr .85fr;gap:50px;align-items:center;border:1px solid #373239;background:radial-gradient(circle at 85% 20%,rgba(255,105,0,.11),transparent 32%),#111114;border-radius:24px;padding:38px}
+.contact-copy h2{font-size:clamp(2rem,3.8vw,3.7rem);line-height:1.03;letter-spacing:-.04em;margin:12px 0}.contact-copy p{color:#aaa59f;max-width:680px}.contact-detail{margin-top:18px;color:#d7d3ce}.contact-detail strong{color:var(--orange)}
+.contact-actions{display:grid;gap:11px}.contact-actions .btn{width:100%}.text-contact-link{text-align:center;color:var(--orange-2);font-weight:800;font-size:.85rem;padding-top:5px}
+.modal-whatsapp{margin-top:10px}
+@media(max-width:650px){.hero-currency{align-items:flex-start;flex-direction:column}.hero-currency select{width:100%}.top-utility-inner{align-items:stretch;flex-direction:column;padding:8px 0}.top-contact-links{justify-content:space-between;gap:8px;flex-wrap:wrap}.top-contact-links span{display:none}.top-currency{justify-content:space-between}.top-currency select{min-width:130px}.contact-panel{grid-template-columns:1fr;padding:24px;gap:25px}}
 `;
 document.head.appendChild(heroCurrencyStyle);
+
+
+// Contact enhancements.
+const modalWhatsApp=document.getElementById('modalWhatsApp');
+if(grid && modalWhatsApp){
+  grid.addEventListener('click',()=>{
+    setTimeout(()=>{
+      const roomName=document.getElementById('modalTitle')?.textContent?.trim();
+      if(roomName){
+        modalWhatsApp.href=TRP_WHATSAPP_BASE+'?text='+encodeURIComponent("Hi TRP, I'm interested in the "+roomName+" concept. Can you tell me more and provide a FREE quotation?");
+      }
+    },0);
+  });
+}
